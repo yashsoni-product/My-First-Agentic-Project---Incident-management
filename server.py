@@ -1,99 +1,65 @@
 #!/usr/bin/env python3
 """
 Production server for Maintenance Incident Management System
-Optimized for Render deployment
+Simplified for reliable deployment
 """
 
 import os
-import sys
-import mimetypes
-from flask import Flask, send_from_directory, send_file, jsonify
-from werkzeug.exceptions import NotFound
+from flask import Flask, send_file, jsonify
 
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-app = Flask(__name__, static_folder='.', static_url_path='')
-
-# Set proper MIME types
-mimetypes.add_type('application/javascript', '.js')
-mimetypes.add_type('text/css', '.css')
-mimetypes.add_type('text/html', '.html')
+# Create Flask app with simple configuration
+app = Flask(__name__)
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-print(f"Server starting from directory: {BASE_DIR}")
-print(f"Files in directory: {os.listdir(BASE_DIR)}")
 
 @app.route('/')
 def index():
     """Serve the main application page"""
     try:
-        return send_file(os.path.join(BASE_DIR, 'index.html'))
-    except FileNotFoundError:
-        return jsonify({'error': 'Application not found'}), 404
+        index_path = os.path.join(BASE_DIR, 'index.html')
+        if os.path.exists(index_path):
+            return send_file(index_path)
+        else:
+            return jsonify({'error': 'index.html not found', 'path': index_path}), 404
+    except Exception as e:
+        return jsonify({'error': f'Server error: {str(e)}'}), 500
 
-@app.route('/<path:filename>')
+@app.route('/<filename>')
 def serve_static(filename):
-    """Serve static files (CSS, JS, images, etc.)"""
+    """Serve static files (CSS, JS, etc.)"""
     try:
-        # Security: prevent directory traversal
-        if '..' in filename or filename.startswith('/'):
+        # Basic security check
+        if '..' in filename:
             return jsonify({'error': 'Invalid file path'}), 400
         
         file_path = os.path.join(BASE_DIR, filename)
         
-        # Check if file exists
-        if not os.path.exists(file_path):
-            return jsonify({'error': 'File not found'}), 404
-        
-        # Set proper content type based on file extension
-        if filename.endswith('.js'):
-            return send_file(file_path, mimetype='application/javascript')
-        elif filename.endswith('.css'):
-            return send_file(file_path, mimetype='text/css')
-        elif filename.endswith('.html'):
-            return send_file(file_path, mimetype='text/html')
-        elif filename.endswith(('.png', '.jpg', '.jpeg', '.gif', '.ico')):
+        if os.path.exists(file_path):
             return send_file(file_path)
         else:
-            return send_file(file_path)
+            return jsonify({'error': f'File not found: {filename}'}), 404
             
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'Error serving {filename}: {str(e)}'}), 500
 
 @app.route('/health')
 def health_check():
-    """Health check endpoint for Railway"""
+    """Health check endpoint"""
+    files_in_dir = os.listdir(BASE_DIR)
     return jsonify({
         'status': 'healthy',
         'application': 'Maintenance Incident Management System',
-        'version': '1.0.0'
+        'base_dir': BASE_DIR,
+        'files': files_in_dir[:10]  # Show first 10 files
     })
 
-@app.errorhandler(404)
-def not_found(error):
-    """Handle 404 errors"""
-    return jsonify({'error': 'Resource not found'}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    """Handle 500 errors"""
-    return jsonify({'error': 'Internal server error'}), 500
-
 if __name__ == '__main__':
-    # Get port from environment variable (Render uses PORT)
     port = int(os.environ.get('PORT', 10000))
     
-    # Configure for production deployment
-    print(f"Starting Flask server...")
-    print(f"Host: 0.0.0.0")
-    print(f"Port: {port}")
+    print("=== Server Startup ===")
     print(f"Base directory: {BASE_DIR}")
+    print(f"Files available: {os.listdir(BASE_DIR)}")
+    print(f"Starting on host 0.0.0.0, port {port}")
     
-    try:
-        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
-    except Exception as e:
-        print(f"Error starting server: {e}")
-        sys.exit(1)
+    app.run(host='0.0.0.0', port=port, debug=False)
