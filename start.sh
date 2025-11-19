@@ -1,11 +1,16 @@
 #!/bin/bash
-# Render startup script
+# Render startup script with fallback options
 
-echo "Starting Maintenance Incident Management System..."
+echo "=== Maintenance Incident Management System Startup ==="
 echo "PORT: $PORT"
+echo "Python version: $(python --version)"
 echo "Current directory: $(pwd)"
 echo "Files in directory:"
 ls -la
 
-# Run the Flask server
+echo "=== Checking Flask installation ==="
+python -c "import flask; print(f'Flask version: {flask.__version__}')"
+
+echo "=== Starting server ==="
+# Try direct Flask server first
 python server.py

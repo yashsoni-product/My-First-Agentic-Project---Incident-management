@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
 Production server for Maintenance Incident Management System
-Optimized for Railway deployment
+Optimized for Render deployment
 """
 
 import os
+import sys
 import mimetypes
 from flask import Flask, send_from_directory, send_file, jsonify
 from werkzeug.exceptions import NotFound
 
-app = Flask(__name__)
+# Add current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+app = Flask(__name__, static_folder='.', static_url_path='')
 
 # Set proper MIME types
 mimetypes.add_type('application/javascript', '.js')
@@ -18,6 +22,9 @@ mimetypes.add_type('text/html', '.html')
 
 # Get the directory where this script is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+print(f"Server starting from directory: {BASE_DIR}")
+print(f"Files in directory: {os.listdir(BASE_DIR)}")
 
 @app.route('/')
 def index():
@@ -76,9 +83,17 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    # Get port from environment variable (Render uses PORT, Railway uses PORT)
+    # Get port from environment variable (Render uses PORT)
     port = int(os.environ.get('PORT', 10000))
     
-    # Configure for production deployment (Render, Railway, etc.)
-    print(f"Starting server on host 0.0.0.0, port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+    # Configure for production deployment
+    print(f"Starting Flask server...")
+    print(f"Host: 0.0.0.0")
+    print(f"Port: {port}")
+    print(f"Base directory: {BASE_DIR}")
+    
+    try:
+        app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+    except Exception as e:
+        print(f"Error starting server: {e}")
+        sys.exit(1)
