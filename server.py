@@ -76,9 +76,9 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    # Get port from environment variable or default to 8080
-    port = int(os.environ.get('PORT', 8080))
+    # Get port from environment variable (Render uses PORT, Railway uses PORT)
+    port = int(os.environ.get('PORT', 10000))
     
-    # In production (Railway), Flask will be served by gunicorn
-    # This is just for local development
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # Configure for production deployment (Render, Railway, etc.)
+    print(f"Starting server on host 0.0.0.0, port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
