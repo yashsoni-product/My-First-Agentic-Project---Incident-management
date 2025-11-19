@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFG Maintenance Incident Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-wrench"></i> AFG Maintenance Hub</h1>
+                <div class="header-controls">
+                    <button id="regenerate-data" class="btn btn-sm" style="margin-right: 1rem;">
+                        <i class="fas fa-refresh"></i> Regenerate Data
+                    </button>
+                    <button id="theme-toggle" class="btn btn-icon">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-info">
+                        <span>Welcome, Service Staff</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="tracker">
+                <i class="fas fa-list"></i> All
+            </button>
+            <button class="nav-tab" data-tab="submitted">
+                <i class="fas fa-paper-plane"></i> Submitted
+            </button>
+            <button class="nav-tab" data-tab="reviewed">
+                <i class="fas fa-eye"></i> Reviewed
+            </button>
+            <button class="nav-tab" data-tab="approved">
+                <i class="fas fa-check-circle"></i> Approved
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search by ID, keyword...">
+                </div>
+                <button class="filter-btn" id="filter-toggle">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+
+            <!-- Filter Panel -->
+            <div class="filter-panel" id="filter-panel">
+                <div class="filter-options">
+                    <select id="location-filter">
+                        <option value="">All Locations</option>
+                        <option value="Sydney CBD">Sydney CBD</option>
+                        <option value="Melbourne Central">Melbourne Central</option>
+                        <option value="Brisbane North">Brisbane North</option>
+                        <option value="Perth South">Perth South</option>
+                        <option value="Adelaide East">Adelaide East</option>
+                    </select>
+                    <select id="priority-filter">
+                        <option value="">All Priorities</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                    <input type="date" id="date-from" placeholder="From Date">
+                    <input type="date" id="date-to" placeholder="To Date">
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Incident Tab -->
+        <div id="submit" class="tab-content">
+            <div class="form-container">
+                <h2>Submit New Incident</h2>
+                <form id="incident-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="service-centre">Service Centre Location *</label>
+                            <select id="service-centre" required>
+                                <option value="">Select Location</option>
+                                <option value="Sydney CBD">Sydney CBD</option>
+                                <option value="Melbourne Central">Melbourne Central</option>
+                                <option value="Brisbane North">Brisbane North</option>
+                                <option value="Perth South">Perth South</option>
+                                <option value="Adelaide East">Adelaide East</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="incident-date">Incident Date *</label>
+                            <input type="date" id="incident-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="equipment-type">Equipment Type *</label>
+                            <select id="equipment-type" required>
+                                <option value="">Select Equipment</option>
+                                <option value="HVAC System">HVAC System</option>
+                                <option value="Elevator">Elevator</option>
+                                <option value="Security System">Security System</option>
+                                <option value="Plumbing">Plumbing</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Fire Safety">Fire Safety</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority Level *</label>
+                            <select id="priority" required>
+                                <option value="">Select Priority</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="description">Incident Description *</label>
+                            <textarea id="description" rows="4" required placeholder="Describe the incident in detail..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="estimated-cost">Estimated Cost ($)</label>
+                            <input type="number" id="estimated-cost" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="reported-by">Reported By *</label>
+                            <input type="text" id="reported-by" required placeholder="Your name">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="document-upload">Upload Documents</label>
+                            <div class="file-upload-area" id="file-upload-area">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drag & drop files here or <span class="upload-link">click to browse</span></p>
+                                <input type="file" id="document-upload" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+                            </div>
+                            <div id="uploaded-files" class="uploaded-files"></div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Incident
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('incident-form').reset()">
+                            <i class="fas fa-undo"></i> Reset Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Incident Cards Container -->
+        <div id="tracker" class="tab-content active">
+            <div id="incidents-container" class="incidents-container">
+                <!-- Dynamic incident cards will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Status-specific tabs -->
+        <div id="submitted" class="tab-content">
+            <div id="submitted-incidents" class="incidents-container">
+                <!-- Submitted incidents -->
+            </div>
+        </div>
+
+        <div id="reviewed" class="tab-content">
+            <div id="reviewed-incidents" class="incidents-container">
+                <!-- Reviewed incidents -->
+            </div>
+        </div>
+
+        <div id="approved" class="tab-content">
+            <div id="approved-incidents" class="incidents-container">
+                <!-- Approved incidents -->
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="add-incident-fab">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Modal for Incident Details -->
+        <div id="incident-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Incident Details</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div id="modal-body" class="modal-body">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary modal-close">Close</button>
+                    <button id="modal-action-btn" class="btn btn-primary">Update Status</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmation-modal" class="modal">
+            <div class="modal-content confirmation-modal">
+                <div class="modal-header">
+                    <h3 id="confirmation-title">Confirm Status Change</h3>
+                    <button class="modal-close confirmation-close">&times;</button>
+                </div>
+                <div id="confirmation-body" class="modal-body">
+                    <div class="confirmation-content">
+                        <div class="confirmation-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p id="confirmation-message">Are you sure you want to change the status?</p>
+                        <div class="status-change-preview">
+                            <div class="status-from">
+                                <span>From:</span>
+                                <span id="current-status-badge" class="status-badge">Current</span>
+                            </div>
+                            <div class="status-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="status-to">
+                                <span>To:</span>
+                                <span id="new-status-badge" class="status-badge">New</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary confirmation-close">Cancel</button>
+                    <button id="confirm-status-change" class="btn btn-primary">Confirm Change</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejection Chat Modal -->
+        <div id="rejection-chat-modal" class="modal">
+            <div class="modal-content chat-modal">
+                <div class="modal-header">
+                    <h3 id="chat-title">Rejection Validation</h3>
+                    <div class="chat-subtitle">
+                        <i class="fas fa-robot"></i>
+                        <span>Please answer these questions to validate the rejection</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="chat-container">
+                        <div id="chat-messages" class="chat-messages">
+                            <!-- Chat messages will be dynamically added here -->
+                        </div>
+                        <div class="chat-input-container" id="chat-input-container">
+                            <input type="text" id="chat-input" placeholder="Type your answer..." disabled>
+                            <button id="chat-send" class="btn btn-primary" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="chat-result" id="chat-result" style="display: none;">
+                            <div class="result-content">
+                                <div class="result-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h4 id="result-title">Validation Complete</h4>
+                                <p id="result-message">Processing your responses...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="chat-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="chat-complete" style="display: none;">Complete Rejection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
